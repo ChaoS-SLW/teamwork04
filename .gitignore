@@ -1,0 +1,13 @@
+# Java compiled files
+*.class
+
+# Build output
+/teamwork04/build/
+**/target/
+
+# IDE files
+.idea/
+*.iml
+
+# Operating system files
+.DS_Store
