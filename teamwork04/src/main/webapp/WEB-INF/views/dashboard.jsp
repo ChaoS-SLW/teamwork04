@@ -17,5 +17,9 @@ include file="/WEB-INF/views/components/head.jspf"
 
 <jsp:include page="/WEB-INF/views/components/header.jsp"></jsp:include>
 
+
+
+<jsp:include page="/WEB-INF/views/components/footer.jsp"></jsp:include>
+
 </body>
 </html>

@@ -47,7 +47,7 @@
             ========================== --%>
 
             <a class="navbar-brand sf-brand"
-               href="<%= request.getContextPath() %>/DashboardController">
+               href="<%= request.getContextPath() %>/StudyController">
 
                 <span class="sf-brand-icon" aria-hidden="true">
                     ✳
@@ -121,7 +121,7 @@
                                 class="nav-link sf-nav-link
                                 <%= isDashboard ? "active" : "" %>"
 
-                                href="<%= contextPath %>/dashboard"
+                                href="<%= request.getContextPath() %>/DashboardController"
 
                                 <%= isDashboard
                                     ? "aria-current=\"page\""
@@ -142,7 +142,7 @@
                                 class="nav-link sf-nav-link
                                 <%= isTasks ? "active" : "" %>"
 
-                                href="<%= contextPath %>/tasks"
+                                href="<%= request.getContextPath() %>/TaskController"
 
                                 <%= isTasks
                                     ? "aria-current=\"page\""
@@ -163,7 +163,7 @@
                                 class="nav-link sf-nav-link
                                 <%= isAnalytics ? "active" : "" %>"
 
-                                href="<%= contextPath %>/analytics"
+                                href="<%= request.getContextPath() %>/ActivityController"
 
                                 <%= isAnalytics
                                     ? "aria-current=\"page\""
