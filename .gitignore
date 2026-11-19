@@ -1,13 +1,59 @@
-# Java compiled files
+# StudyFlow (teamwork04) - Eclipse / Java Servlets / JSP / Tomcat 9 / SQLite
+# This file is at the GitHub repository root.
+
+# Compiled Java classes and generated build directories
 *.class
-
-# Build output
-/teamwork04/build/
+**/build/
+**/bin/
 **/target/
+**/out/
 
-# IDE files
+# Eclipse workspace caches (keep .project, .classpath, and .settings/)
+.metadata/
+**/.metadata/
+.recommenders/
+**/.recommenders/
+*.launch
+
+# Other editor-specific files
 .idea/
 *.iml
+.vscode/
+*.swp
+*.swo
+*~
+*.bak
+*.orig
+*.rej
 
-# Operating system files
+# Tomcat runtime files and logs
+**/logs/
+**/work/
+**/temp/
+*.log
+catalina.out
+hs_err_pid*
+
+# SQLite database files and journals
+# Keep database schema (.sql), but not local data (.db).
+*.db
+*.db-*
+*.sqlite
+*.sqlite-*
+*.sqlite3
+*.sqlite3-*
+
+# Local environment variables and sensitive keys
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+
+# OS-generated files
 .DS_Store
+Thumbs.db
+Desktop.ini
+
+# Keep WEB-INF/lib/*.jar: teamwork04 currently uses a manually added SQLite JDBC JAR.
