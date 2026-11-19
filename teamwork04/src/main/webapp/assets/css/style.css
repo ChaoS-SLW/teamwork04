@@ -1,0 +1,362 @@
+@charset "UTF-8";
+/* ==========================================
+   STUDYFLOW - HEADER COMPONENT
+========================================== */
+
+/* Theme variables */
+
+:root {
+    --sf-primary: #8b5cf6;
+    --sf-primary-hover: #7c3aed;
+
+    --sf-background: #f8f7ff;
+    --sf-surface: #ffffff;
+
+    --sf-text: #211a35;
+    --sf-muted: #6b7280;
+
+    --sf-border: #eee9f5;
+
+    --sf-radius: 12px;
+}
+
+
+/* ==========================================
+   HEADER
+========================================== */
+
+.sf-header {
+    position: relative;
+    z-index: 100;
+    width: 100%;
+}
+
+
+/* Navbar */
+
+.sf-navbar {
+    background-color: var(--sf-surface);
+    border-bottom: 1px solid var(--sf-border);
+
+    padding: 12px 0;
+}
+
+
+/* ==========================================
+   BRAND
+========================================== */
+
+.sf-brand {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+
+    text-decoration: none;
+}
+
+
+/* Logo icon */
+
+.sf-brand-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    width: 40px;
+    height: 40px;
+
+    background-color: var(--sf-primary);
+    color: white;
+
+    border-radius: 13px;
+
+    font-size: 24px;
+
+    transition: transform 0.2s ease;
+}
+
+
+/* Logo hover animation */
+
+.sf-brand:hover .sf-brand-icon {
+    transform: rotate(15deg);
+}
+
+
+/* Brand text */
+
+.sf-brand-text {
+    font-size: 22px;
+    font-weight: 800;
+
+    letter-spacing: -0.8px;
+
+    color: var(--sf-text);
+}
+
+
+/* Colored brand dot */
+
+.sf-brand-dot {
+    color: var(--sf-primary);
+}
+
+
+/* ==========================================
+   NAVIGATION LINKS
+========================================== */
+
+.sf-nav-list {
+    gap: 8px;
+}
+
+
+/* Default navigation links */
+
+.sf-navbar .sf-nav-link {
+    display: flex;
+    align-items: center;
+
+    padding: 10px 16px;
+
+    color: var(--sf-muted);
+
+    font-size: 14px;
+    font-weight: 600;
+
+    border-radius: var(--sf-radius);
+
+    transition:
+        background-color 0.2s ease,
+        color 0.2s ease;
+}
+
+
+/* Hover */
+
+.sf-navbar .sf-nav-link:hover {
+    background-color: #f3efff;
+    color: var(--sf-primary-hover);
+}
+
+
+/* Active page */
+
+.sf-navbar .sf-nav-link.active {
+    background-color: #ede9fe;
+    color: var(--sf-primary-hover);
+
+    font-weight: 700;
+}
+
+
+/* ==========================================
+   ACCESSIBILITY
+========================================== */
+
+.sf-header a:focus-visible,
+.sf-header button:focus-visible {
+    outline: 2px solid var(--sf-primary);
+    outline-offset: 3px;
+}
+
+
+/* ==========================================
+   RESPONSIVE DESIGN
+========================================== */
+
+@media (max-width: 767px) {
+
+    .sf-navbar {
+        padding: 10px 0;
+    }
+
+    .sf-brand-text {
+        font-size: 20px;
+    }
+
+    .sf-brand-icon {
+        width: 36px;
+        height: 36px;
+
+        font-size: 21px;
+    }
+
+}
+
+
+/* Respect reduced-motion preferences */
+
+@media (prefers-reduced-motion: reduce) {
+
+    .sf-brand-icon,
+    .sf-navbar .sf-nav-link {
+        transition: none;
+    }
+
+}
+/* ==========================================
+   STUDYFLOW - FOOTER COMPONENT
+========================================== */
+
+.sf-footer {
+    background-color: var(--sf-surface, #ffffff);
+    border-top: 1px solid var(--sf-border, #eee9f5);
+
+    padding: 48px 0 24px;
+    margin-top: 60px;
+
+    color: var(--sf-text, #211a35);
+}
+
+
+/* ==========================================
+   FOOTER BRAND
+========================================== */
+
+.sf-footer-brand {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+
+    text-decoration: none;
+    color: inherit;
+}
+
+.sf-footer-brand:hover {
+    color: inherit;
+}
+
+.sf-footer-logo {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    width: 38px;
+    height: 38px;
+
+    background-color: var(--sf-primary, #8b5cf6);
+    color: #ffffff;
+
+    border-radius: 12px;
+    font-size: 23px;
+}
+
+.sf-footer-title {
+    font-size: 22px;
+    font-weight: 800;
+    letter-spacing: -0.8px;
+}
+
+.sf-footer-description {
+    margin-top: 15px;
+    margin-bottom: 0;
+
+    color: var(--sf-muted, #6b7280);
+
+    font-size: 14px;
+    line-height: 1.8;
+}
+
+
+/* ==========================================
+   FOOTER NAVIGATION
+========================================== */
+
+.sf-footer-nav {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    flex-wrap: wrap;
+
+    gap: 12px 24px;
+
+    margin: 0;
+    padding: 0;
+
+    list-style: none;
+}
+
+.sf-footer-nav a {
+    text-decoration: none;
+
+    color: var(--sf-muted, #6b7280);
+
+    font-size: 14px;
+    font-weight: 600;
+
+    transition: color 0.2s ease;
+}
+
+.sf-footer-nav a:hover {
+    color: var(--sf-primary, #8b5cf6);
+}
+
+
+/* ==========================================
+   FOOTER BOTTOM
+========================================== */
+
+.sf-footer-bottom {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+
+    gap: 12px 24px;
+
+    margin-top: 36px;
+    padding-top: 20px;
+
+    border-top: 1px solid var(--sf-border, #eee9f5);
+
+    font-size: 12px;
+    color: var(--sf-muted, #6b7280);
+}
+
+
+/* ==========================================
+   RESPONSIVE DESIGN
+========================================== */
+
+@media (max-width: 767px) {
+
+    .sf-footer {
+        padding: 32px 0 20px;
+        margin-top: 40px;
+    }
+
+    .sf-footer-nav {
+        justify-content: flex-start;
+        gap: 12px 20px;
+    }
+
+    .sf-footer-bottom {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+    }
+
+    .sf-footer-title {
+        font-size: 20px;
+    }
+}
+
+
+/* ==========================================
+   ACCESSIBILITY
+========================================== */
+
+.sf-footer a:focus-visible {
+    outline: 2px solid var(--sf-primary, #8b5cf6);
+    outline-offset: 4px;
+    border-radius: 3px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+
+    .sf-footer-nav a {
+        transition: none;
+    }
+
+}
