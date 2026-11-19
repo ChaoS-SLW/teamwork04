@@ -1,6 +1,8 @@
 package aiwa.controller;
 
 import java.io.IOException;
+import java.sql.SQLException;
+import java.time.LocalDateTime;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -8,14 +10,62 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import aiwa.dao.Database;
+import aiwa.entity.StudySession;
+import aiwa.model.CourseModel;
+import aiwa.model.StudyModel;
+import aiwa.service.ActivityService;
+
 @WebServlet("/ActivityController")
 public class ActivityController extends HttpServlet {
+	private static final long serialVersionUID = 1L;
+	private final StudyModel studyModel = new StudyModel();
+	private final CourseModel courseModel = new CourseModel();
+	private final ActivityService activityService = new ActivityService();
 
 	protected void doGet(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
 
-		request.getRequestDispatcher("WEB-INF/views/analytics.jsp").forward(request, response);
+		response.setCharacterEncoding("UTF-8");
+		long userId = Database.getDemoUserId();
+		try {
+			request.setAttribute("sessions", studyModel.getRecentSessions(userId, 30));
+			request.setAttribute("courses", courseModel.getCourses(userId));
+			request.setAttribute("totalMinutes", studyModel.getTotalMinutes(userId));
+			request.setAttribute("streak", activityService.getStudyStreak(userId));
+			request.setAttribute("weeklyMinutes", activityService.getWeeklyMinutes(userId));
+			request.setAttribute("weekdays", activityService.getWeekdayLabels());
+			request.setAttribute("monthlyActivity", activityService.getDailyMinutes(userId, 30));
+			request.setAttribute("activity", activityService.getDailyMinutes(userId, 365));
+		} catch (SQLException e) { request.setAttribute("pageError", "Study activity could not be loaded. Please try again."); }
+		ControllerSupport.exposeFlash(request);
+		request.getRequestDispatcher("/WEB-INF/views/analytics.jsp").forward(request, response);
 
 	}
 
+	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
+		request.setCharacterEncoding("UTF-8");
+		try {
+			String startValue = request.getParameter("startedAt");
+			String minutesValue = request.getParameter("minutes");
+			LocalDateTime start;
+			try { start = LocalDateTime.parse(startValue); }
+			catch (RuntimeException e) { throw new IllegalArgumentException("Enter a valid study date and start time."); }
+			int minutes;
+			try { minutes = Integer.parseInt(minutesValue); }
+			catch (RuntimeException e) { throw new IllegalArgumentException("Enter a valid study duration."); }
+			if (minutes < 1 || minutes > 720) throw new IllegalArgumentException("Study duration must be between 1 and 720 minutes.");
+			if (start.isAfter(LocalDateTime.now())) throw new IllegalArgumentException("Study time cannot be in the future.");
+			String notes = request.getParameter("notes");
+			if (notes != null && notes.length() > 500) throw new IllegalArgumentException("Notes must be 500 characters or fewer.");
+			StudySession session = new StudySession(); session.setUserId(Database.getDemoUserId());
+			session.setCourseId(ControllerSupport.optionalPositiveInt(request.getParameter("courseId")));
+			session.setStartedAt(start); session.setEndedAt(start.plusMinutes(minutes));
+			session.setNotes(notes == null || notes.isBlank() ? null : notes.trim());
+			studyModel.createSession(session);
+			ControllerSupport.flash(request, "success", "Study session saved.");
+		} catch (IllegalArgumentException e) { ControllerSupport.flash(request, "danger", e.getMessage()); }
+		catch (SQLException e) { ControllerSupport.flash(request, "danger", "The study session could not be saved. Check the selected course and try again."); }
+		response.sendRedirect(request.getContextPath() + "/ActivityController");
+	}
 }
