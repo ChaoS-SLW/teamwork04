@@ -1,4 +1,8 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
+<%
+    javax.servlet.http.HttpSession userSession = request.getSession(false);
+    boolean signedIn = userSession != null && userSession.getAttribute("userId") instanceof Number;
+%>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -15,10 +19,15 @@
                     <h1 class="sf-home-title">Small steps.<br><span>Big progress.</span></h1>
                     <p class="sf-lead">Bring your courses, assignments, and study time together. Make a plan that feels manageable, then watch your progress grow.</p>
                     <div class="d-flex flex-wrap gap-3 mt-4">
-                        <a class="btn btn-primary rounded-pill px-4 py-2" href="<%= request.getContextPath() %>/DashboardController">Get started <span aria-hidden="true">→</span></a>
-                        <a class="btn btn-outline-primary rounded-pill px-4 py-2" href="<%= request.getContextPath() %>/CoursesController">Explore courses</a>
+                        <% if (signedIn) { %>
+                        <a class="btn btn-primary rounded-pill px-4 py-2" href="<%= request.getContextPath() %>/DashboardController">Open my dashboard <span aria-hidden="true">→</span></a>
+                        <a class="btn btn-outline-primary rounded-pill px-4 py-2" href="<%= request.getContextPath() %>/CoursesController">My courses</a>
+                        <% } else { %>
+                        <a class="btn btn-primary rounded-pill px-4 py-2" href="<%= request.getContextPath() %>/RegisterController">Create your account <span aria-hidden="true">→</span></a>
+                        <a class="btn btn-outline-primary rounded-pill px-4 py-2" href="<%= request.getContextPath() %>/LoginController">Sign in</a>
+                        <% } %>
                     </div>
-                    <p class="small text-body-secondary mt-4 mb-0">Create an account to keep your learning data with you.</p>
+                    <p class="small text-body-secondary mt-4 mb-0"><%= signedIn ? "Your study space is ready whenever you are." : "Create an account to keep your learning data with you." %></p>
                 </div>
                 <div class="col-12 col-lg-5">
                     <div class="sf-home-card card border-0 shadow-sm">

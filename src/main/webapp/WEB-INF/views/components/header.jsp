@@ -23,11 +23,11 @@
                 <div class="drawer-header"><h2 class="drawer-title h5" id="studyflowNavLabel">Navigation</h2><button type="button" class="btn-close" data-bs-dismiss="drawer" aria-label="Close navigation"></button></div>
                 <div class="drawer-body"><ul class="navbar-nav sf-nav-list">
                     <li class="nav-item"><a class="nav-link sf-nav-link <%= isHome?"active":"" %>" href="<%= contextPath %>/StudyController" <%= isHome?"aria-current=\"page\"":"" %>>Home</a></li>
+                    <% if (signedIn) { %>
                     <li class="nav-item"><a class="nav-link sf-nav-link <%= isDashboard?"active":"" %>" href="<%= contextPath %>/DashboardController" <%= isDashboard?"aria-current=\"page\"":"" %>>Dashboard</a></li>
                     <li class="nav-item"><a class="nav-link sf-nav-link <%= isCourses?"active":"" %>" href="<%= contextPath %>/CoursesController" <%= isCourses?"aria-current=\"page\"":"" %>>My Courses</a></li>
                     <li class="nav-item"><a class="nav-link sf-nav-link <%= isTasks?"active":"" %>" href="<%= contextPath %>/TaskController" <%= isTasks?"aria-current=\"page\"":"" %>>My Tasks</a></li>
                     <li class="nav-item"><a class="nav-link sf-nav-link <%= isAnalytics?"active":"" %>" href="<%= contextPath %>/ActivityController" <%= isAnalytics?"aria-current=\"page\"":"" %>>Analytics</a></li>
-                    <% if (signedIn) { %>
                     <li class="nav-item"><form method="post" action="<%= contextPath %>/LogoutController"><input type="hidden" name="csrfToken" value="<%= aiwa.ulti.Html.csrfToken(request) %>"><button class="nav-link sf-nav-link" type="submit">Sign out</button></form></li>
                     <% } else { %>
                     <li class="nav-item"><a class="nav-link sf-nav-link" href="<%= contextPath %>/LoginController">Sign in</a></li>

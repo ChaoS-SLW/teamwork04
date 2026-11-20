@@ -18,6 +18,7 @@
                 <button class="btn btn-primary btn-lg rounded-pill w-100" type="submit">Sign in</button>
             </form>
             <p class="text-center text-body-secondary mt-4 mb-0">New to StudyFlow? <a href="<%= request.getContextPath() %>/RegisterController">Create an account</a></p>
+            <p class="text-center mt-2 mb-0"><a href="<%= request.getContextPath() %>/StudyController">Back to home</a></p>
         </div></section>
     </main>
     <jsp:include page="/WEB-INF/views/components/footer.jsp" />

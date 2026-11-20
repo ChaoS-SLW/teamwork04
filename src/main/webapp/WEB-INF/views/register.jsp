@@ -18,6 +18,7 @@
                 <button class="btn btn-primary btn-lg rounded-pill w-100" type="submit">Create account</button>
             </form>
             <p class="text-center text-body-secondary mt-4 mb-0">Already have an account? <a href="<%= request.getContextPath() %>/LoginController">Sign in</a></p>
+            <p class="text-center mt-2 mb-0"><a href="<%= request.getContextPath() %>/StudyController">Back to home</a></p>
         </div></section>
     </main>
     <jsp:include page="/WEB-INF/views/components/footer.jsp" />
