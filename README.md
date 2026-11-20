@@ -19,14 +19,15 @@
 
 ## What's currently in the repository
 
-- A JSP test page in `index.jsp`, including a server-time display.
-- Reusable `head.jspf`, `header.jsp`, and `footer.jsp` components.
-- Shared styles in `assets/css/style.css`.
-- `DashboardController`, which forwards requests to a dashboard JSP placeholder.
-- Placeholder controllers, entities, DAOs, services, JSP screens, and JavaScript modules for the remaining features.
-- An SQLite JDBC driver JAR and a committed `studyflow.db` file.
+- Separate Home (`StudyController` → `index.jsp`) and Dashboard (`DashboardController` → `dashboard.jsp`) pages.
+- SQLite-backed course listing and course create, edit, and delete actions.
+- SQLite-backed task creation, editing, completion, deletion, and course/status/priority filters.
+- Dashboard totals, course task progress, upcoming tasks, weekly study minutes, streak, and a daily activity heatmap.
+- Study-session logging, recent session history, weekly and 30-day charts, and a yearly activity heatmap.
+- A versioned, idempotent `WEB-INF/schema.sql` bootstrap and compatibility migration for older progress/result tables.
+- Shared JSP components, server-side validation, prepared SQL statements, and escaped user-provided text.
 
-**Not yet confirmed implemented:** course or task CRUD, persisted study sessions, progress calculations, contribution heatmap, analytics, authentication/guest isolation, or automated tests. Do not describe these features as working until tested.
+**Demo account:** The app creates one fictional shared demo identity because sign-in is not part of this implementation. All visitors to one Tomcat instance see the same tasks and study activity. Do not put personal or sensitive records into the public demo.
 
 ## Repository structure
 
@@ -91,12 +92,11 @@ teamwork04/                       # GitHub repository
 
 ## Known issues / technical debt
 
-1. **Navigation mismatch:** The header/footer use paths such as `/dashboard`, `/tasks`, and `/analytics`, while actual Servlet annotations include `/DashboardController`, `/TaskController`, and `/ActivityController`. Establish one consistent routing convention and verify each link.
-2. **Incomplete dashboard:** `dashboard.jsp` currently contains the shared head/header but no dashboard main content.
-3. **Unimplemented persistence:** Several entity/DAO/controller classes are placeholders. Define the schema and API contract before integrating frontend and backend.
-4. **Tracked generated files:** The repository currently includes `studyflow.db` and `teamwork04/build/classes/`. The `.gitignore` prevents *new untracked* files of these types, but already-tracked files need a separate, coordinated cleanup. Back up anything useful first.
-5. **No reproducible DB setup:** There is no version-controlled `schema.sql`/initialization guide yet. Prefer schema + optional fictional seed data over committing a mutable database.
-6. **Public repository:** Never use real student records, credentials, secrets, or sensitive data in commits.
+1. The demo is shared and has no authentication; add server-side login and record ownership before using it for private student data.
+2. The runtime database is `WEB-INF/studyflow.db`; the repository-root `studyflow.db` remains a historical snapshot and is not used by the web app.
+3. `teamwork04/build/classes/` and the root database are already tracked. This change leaves those existing tracked artifacts untouched.
+4. The app initializes schema and a fictional demo user at Tomcat startup. For durable deployment, configure the database outside the deployed webapp and add a backup plan.
+5. Automated tests and a Tomcat UI run have not been added or performed.
 
 ## Planned features (development goals)
 
@@ -109,15 +109,11 @@ teamwork04/                       # GitHub repository
 
 ## Suggested build order
 
-1. Fix and verify navigation between `index.jsp`, `DashboardController`, and the shared header/footer.
-2. Finish the dashboard layout using clearly marked **mock data**.
-3. Define a SQLite schema, entities, and the servlet/API contract with all teammates.
-4. Implement courses and tasks CRUD and connect the forms.
-5. Verify that changes survive refresh and Tomcat restart.
-6. Add study-session logging, heatmap, and analytics after persistence works.
-7. Test mobile layout, empty states, invalid input, and demo scenarios.
-
-**Minimum demo target:** create a course → add a task → mark it completed → refresh the page → see the saved progress.
+1. Run the project on Tomcat 9 and confirm schema initialization against a backup of the intended SQLite file.
+2. Walk through the minimum demo: create a course → create a task → mark it complete → refresh and verify persistence.
+3. Log a study session and verify the charts and heatmap update.
+4. Test mobile layout, invalid input, empty states, duplicate course names, and course deletion when lessons exist.
+5. Add authentication and per-user course ownership before presenting this as a private multi-user application.
 
 ## Three-person collaboration
 

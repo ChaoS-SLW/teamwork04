@@ -65,6 +65,12 @@
                         </li>
 
                         <li>
+                            <a href="<%= contextPath %>/CoursesController">
+                                My Courses
+                            </a>
+                        </li>
+
+                        <li>
                             <a href="<%= contextPath %>/TaskController">
                                 My Tasks
                             </a>
