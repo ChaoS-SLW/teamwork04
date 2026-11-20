@@ -26,15 +26,18 @@ public final class Database {
 	private Database() { }
 
 	public static synchronized void initialize(ServletContext context) throws ServletException {
-		String databasePath = context.getRealPath("/WEB-INF/studyflow.db");
-		if (databasePath == null) {
+		String databasePath = System.getProperty("studyflow.db");
+		if (databasePath == null || databasePath.isBlank()) databasePath = System.getenv("STUDYFLOW_DB");
+		if (databasePath == null || databasePath.isBlank()) databasePath = context.getRealPath("/WEB-INF/studyflow.db");
+		if (databasePath == null || databasePath.isBlank()) {
 			throw new ServletException("Tomcat must provide a writable application path for WEB-INF/studyflow.db");
 		}
 		try {
 			Class.forName("org.sqlite.JDBC");
-			Path path = Path.of(databasePath);
+			Path path = Path.of(databasePath).toAbsolutePath().normalize();
 			Files.createDirectories(path.getParent());
-			jdbcUrl = "jdbc:sqlite:" + path.toAbsolutePath();
+			jdbcUrl = "jdbc:sqlite:" + path;
+			context.log("StudyFlow SQLite database: " + path);
 			try (Connection connection = openConnection()) {
 				executeSchema(context, connection);
 				long legacyUserId = ensureLegacyUser(connection);

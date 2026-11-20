@@ -51,6 +51,7 @@ public class RegisterController extends HttpServlet {
 			ControllerSupport.establishUser(request, id, username);
 			response.sendRedirect(request.getContextPath() + "/DashboardController");
 		} catch (SQLException e) {
+			getServletContext().log("Account registration could not be saved to SQLite", e);
 			String message = e.getMessage() != null && e.getMessage().contains("UNIQUE")
 					? "That email or name is already registered. Try signing in."
 					: "Your account could not be created. Please try again.";
