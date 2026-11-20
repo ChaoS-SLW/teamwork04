@@ -1,0 +1,51 @@
+<%@ page import="java.util.*, aiwa.entity.*, aiwa.model.StudyModel" %>
+<%!
+    /** HTMLエスケープ（XSS対策） */
+    static String h(Object o) {
+        if (o == null) return "";
+        return o.toString().replace("&", "&amp;").replace("<", "&lt;")
+                .replace(">", "&gt;").replace("\"", "&quot;").replace("'", "&#39;");
+    }
+%>
+<% String ctx = request.getContextPath(); %>
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title><%= h(pageTitle) %> - StudyFlow</title>
+<style>
+  body { font-family: "Meiryo", "Segoe UI", sans-serif; margin: 0; background: #f4f6fb; color: #222; }
+  nav { background: #2d3a8c; padding: 12px 24px; }
+  nav a { color: #fff; margin-right: 20px; text-decoration: none; font-weight: bold; }
+  main { max-width: 900px; margin: 24px auto; padding: 0 16px; }
+  h1 { font-size: 1.5em; }
+  .card { background: #fff; border-radius: 8px; padding: 16px; margin-bottom: 12px; box-shadow: 0 1px 3px rgba(0,0,0,.12); }
+  .card a { text-decoration: none; color: #2d3a8c; font-weight: bold; }
+  .muted { color: #777; font-size: .9em; }
+  .bar { background: #dde1f0; border-radius: 6px; height: 12px; overflow: hidden; margin: 6px 0; }
+  .bar > span { display: block; height: 100%; background: #3fa66b; }
+  .done { color: #3fa66b; font-weight: bold; }
+  .ok { color: #3fa66b; font-weight: bold; }
+  .ng { color: #d64545; font-weight: bold; }
+  pre { background: #1e1e2e; color: #eee; padding: 12px; border-radius: 6px; overflow-x: auto; }
+  table { border-collapse: collapse; width: 100%; background: #fff; }
+  th, td { border: 1px solid #ccd; padding: 8px; text-align: left; }
+  th { background: #e8ebf7; }
+  button, .btn { background: #2d3a8c; color: #fff; border: 0; border-radius: 6px; padding: 8px 16px;
+                 font-size: 1em; cursor: pointer; text-decoration: none; display: inline-block; }
+  .btn-sub { background: #777; }
+  ul.plain { list-style: none; padding-left: 0; }
+  ul.plain li { padding: 6px 0; border-bottom: 1px solid #eee; }
+  label.opt { display: block; padding: 6px 0; cursor: pointer; }
+  .opt-correct { background: #e3f6ea; }
+  .opt-wrong { background: #fde6e6; }
+</style>
+</head>
+<body>
+<nav>
+  <a href="<%= ctx %>/study">self study</a>
+  <a href="<%= ctx %>/dashboard">dashboard</a>
+  <a href="<%= ctx %>/activity">exam history</a>
+</nav>
+<main>
