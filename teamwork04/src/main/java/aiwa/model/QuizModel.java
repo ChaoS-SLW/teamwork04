@@ -11,7 +11,7 @@ import java.util.ArrayList;
 import aiwa.entity.Question;
 import aiwa.entity.Quiz;
 import aiwa.entity.QuizOption;
-
+import aiwa.entity.QuizResult;
 public class QuizModel {
 
 	private String URL;
@@ -136,5 +136,40 @@ public class QuizModel {
 		stmt.close();
 		conn.close();
 	}
+
+public ArrayList<QuizResult> getQuizHistory()
+        throws SQLException, ClassNotFoundException {
+
+    ArrayList<QuizResult> history = new ArrayList<>();
+
+    String sql = "SELECT qr.*, q.quiz_title "
+            + "FROM quiz_results qr "
+            + "JOIN quizzes q ON qr.quiz_id = q.quiz_id "
+            + "ORDER BY qr.completed_at DESC, qr.result_id DESC";
+
+    Class.forName("org.sqlite.JDBC");
+
+    try (Connection conn = DriverManager.getConnection(URL);
+            PreparedStatement stmt = conn.prepareStatement(sql);
+            ResultSet rs = stmt.executeQuery()) {
+
+        while (rs.next()) {
+
+            QuizResult result = new QuizResult();
+
+            result.setResultId(rs.getInt("result_id"));
+            result.setQuizId(rs.getInt("quiz_id"));
+            result.setQuizTitle(rs.getString("quiz_title"));
+            result.setScore(rs.getInt("score"));
+            result.setTotalQuestions(rs.getInt("total_questions"));
+            result.setCompletedAt(rs.getString("completed_at"));
+
+            history.add(result);
+        }
+    }
+
+    return history;
+}
+
 
 }
