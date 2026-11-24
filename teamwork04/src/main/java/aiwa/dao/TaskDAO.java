@@ -21,7 +21,8 @@ public class TaskDAO {
 			+ "  COALESCE(p.is_completed, 0) AS is_completed, p.completed_at, "
 			+ "  q.quiz_id, q.quiz_title "
 			+ "FROM lessons l "
-			+ "LEFT JOIN lesson_progress p ON p.lesson_id = l.lesson_id "
+			+ "LEFT JOIN lesson_progress p ON p.lesson_id = l.lesson_id AND p.user_id = "
+			+ "(SELECT user_id FROM users WHERE email = 'quiz-guest@studyflow.local') "
 			+ "LEFT JOIN quizzes q ON q.lesson_id = l.lesson_id ";
 
 	/** チャプター内のレッスン一覧（lesson_order 順） */
@@ -56,19 +57,38 @@ public class TaskDAO {
 
 	/** 完了 / 未完了 の切り替え（lesson_id は UNIQUE なので UPSERT） */
 	public void setCompleted(int lessonId, boolean completed) throws SQLException {
-		String sql = "INSERT INTO lesson_progress (lesson_id, is_completed, completed_at) "
-				+ "VALUES (?, ?, CASE WHEN ? = 1 THEN datetime('now','localtime') ELSE NULL END) "
-				+ "ON CONFLICT(lesson_id) DO UPDATE SET "
+		String sql = "INSERT INTO lesson_progress (user_id, lesson_id, is_completed, completed_at) "
+				+ "VALUES (?, ?, ?, CASE WHEN ? = 1 THEN datetime('now','localtime') ELSE NULL END) "
+				+ "ON CONFLICT(user_id, lesson_id) DO UPDATE SET "
 				+ "  is_completed = excluded.is_completed, "
 				+ "  completed_at = excluded.completed_at";
 		int flag = completed ? 1 : 0;
 		try (Connection con = Ulti.getConnection();
 				PreparedStatement ps = con.prepareStatement(sql)) {
-			ps.setInt(1, lessonId);
-			ps.setInt(2, flag);
+			ps.setLong(1, ensureQuizGuestUser(con));
+			ps.setInt(2, lessonId);
 			ps.setInt(3, flag);
+			ps.setInt(4, flag);
 			ps.executeUpdate();
 		}
+	}
+
+	private long ensureQuizGuestUser(Connection con) throws SQLException {
+		String email = "quiz-guest@studyflow.local";
+		try (PreparedStatement insert = con.prepareStatement(
+				"INSERT OR IGNORE INTO users(username, email, password_hash) VALUES (?, ?, ?)")) {
+			insert.setString(1, "StudyFlow Quiz Guest");
+			insert.setString(2, email);
+			insert.setString(3, "!disabled-quiz-guest-account!");
+			insert.executeUpdate();
+		}
+		try (PreparedStatement query = con.prepareStatement("SELECT user_id FROM users WHERE email = ?")) {
+			query.setString(1, email);
+			try (ResultSet rs = query.executeQuery()) {
+				if (rs.next()) return rs.getLong(1);
+			}
+		}
+		throw new SQLException("Could not resolve the quiz guest account");
 	}
 
 	public int countAll() throws SQLException {
@@ -76,7 +96,7 @@ public class TaskDAO {
 	}
 
 	public int countCompleted() throws SQLException {
-		return count("SELECT COUNT(*) FROM lesson_progress WHERE is_completed = 1");
+		return count("SELECT COUNT(*) FROM lesson_progress WHERE user_id = (SELECT user_id FROM users WHERE email = 'quiz-guest@studyflow.local') AND is_completed = 1");
 	}
 
 	/** 最近完了したレッスン（新しい順） */

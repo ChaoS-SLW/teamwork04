@@ -23,6 +23,7 @@ public class StudyDAO {
 			+ "    WHERE ch.course_id = c.course_id) AS total_lessons, "
 			+ "  (SELECT COUNT(*) FROM lessons l JOIN chapters ch ON l.chapter_id = ch.chapter_id "
 			+ "    JOIN lesson_progress p ON p.lesson_id = l.lesson_id AND p.is_completed = 1 "
+			+ "      AND p.user_id = (SELECT user_id FROM users WHERE email = 'quiz-guest@studyflow.local') "
 			+ "    WHERE ch.course_id = c.course_id) AS completed_lessons "
 			+ "FROM courses c JOIN categories cat ON cat.category_id = c.category_id ";
 
