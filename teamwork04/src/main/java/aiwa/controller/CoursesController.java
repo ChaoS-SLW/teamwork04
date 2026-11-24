@@ -2,6 +2,10 @@ package aiwa.controller;
 
 import java.io.IOException;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -9,21 +13,31 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import aiwa.dao.Database;
+import aiwa.entity.Quiz;
 import aiwa.entity.Study;
 import aiwa.model.CourseModel;
+import aiwa.model.QuizModel;
 import aiwa.ulti.Html;
 
 @WebServlet("/CoursesController")
 public class CoursesController extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 	private final CourseModel model = new CourseModel();
+	private final QuizModel quizModel = new QuizModel();
 
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		response.setCharacterEncoding("UTF-8");
 		long userId = ControllerSupport.userId(request);
 		try {
-			request.setAttribute("courses", model.getCourses(userId));
+			List<Study> courses = model.getCourses(userId);
+			List<Quiz> availableQuizzes = quizModel.getAvailable(userId);
+			Map<Integer, List<Quiz>> quizzesByCourse = new HashMap<>();
+			for (Study course : courses) quizzesByCourse.put(course.getCourseId(), new ArrayList<>());
+			for (Quiz quiz : availableQuizzes) {
+				quizzesByCourse.computeIfAbsent(quiz.getCourseId(), key -> new ArrayList<>()).add(quiz);
+			}
+			request.setAttribute("courses", courses);
+			request.setAttribute("quizzesByCourse", quizzesByCourse);
 			request.setAttribute("categories", model.getCategories());
 			request.setAttribute("currentUserId", userId);
 		} catch (SQLException e) { request.setAttribute("pageError", "Courses could not be loaded. Please try again."); }

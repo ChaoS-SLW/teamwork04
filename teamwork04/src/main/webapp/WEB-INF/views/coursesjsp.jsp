@@ -1,6 +1,6 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
-<%@ page import="java.util.List,aiwa.entity.Study,aiwa.entity.Category,aiwa.ulti.Html" %>
-<% List<Study> courses=(List<Study>)request.getAttribute("courses"); List<Category> categories=(List<Category>)request.getAttribute("categories"); Long currentUserId=(Long)request.getAttribute("currentUserId"); Object flashMessage=request.getAttribute("flashMessage"); %>
+<%@ page import="java.util.List,java.util.Map,aiwa.entity.Study,aiwa.entity.Category,aiwa.entity.Quiz,aiwa.ulti.Html" %>
+<% List<Study> courses=(List<Study>)request.getAttribute("courses"); Map<Integer,List<Quiz>> quizzesByCourse=(Map<Integer,List<Quiz>>)request.getAttribute("quizzesByCourse"); List<Category> categories=(List<Category>)request.getAttribute("categories"); Long currentUserId=(Long)request.getAttribute("currentUserId"); Object flashMessage=request.getAttribute("flashMessage"); %>
 <!DOCTYPE html>
 <html lang="en"><head><title>My Courses | StudyFlow</title><%@ include file="/WEB-INF/views/components/head.jspf" %></head><body>
 <jsp:include page="/WEB-INF/views/components/header.jsp" />
@@ -19,14 +19,29 @@
     </div></section>
     <section><div class="d-flex justify-content-between align-items-center mb-3"><div><h2 class="h5 fw-bold mb-1">Courses</h2><p class="small text-body-secondary mb-0">Shared catalog courses are read-only; your courses can be edited.</p></div><span class="badge text-bg-light rounded-pill"><%= courses==null?0:courses.size() %> courses</span></div>
     <% if(courses==null || courses.isEmpty()) { %><div class="sf-empty-state"><span aria-hidden="true">📚</span><p class="mb-1">No courses yet.</p><small class="text-body-secondary">Add your first course above to start organizing your study.</small></div><% } else { %><div class="row g-3">
-        <% for(Study course:courses) { boolean editable=course.getUserId()!=null && course.getUserId().equals(currentUserId); %>
+        <% for(Study course:courses) { boolean editable=course.getUserId()!=null && course.getUserId().equals(currentUserId); List<Quiz> relatedQuizzes=quizzesByCourse==null?null:quizzesByCourse.get(course.getCourseId()); %>
         <div class="col-12 col-md-6 col-xl-4"><article class="card sf-course-card h-100"><div class="card-body p-4">
             <div class="d-flex justify-content-between gap-2"><div><span class="sf-course-category"><%= Html.escape(course.getCategoryName()) %><%= editable?"":" · Shared catalog" %></span><h3 class="h5 fw-bold mt-2"><%= Html.escape(course.getCourseName()) %></h3></div><span class="sf-course-icon" aria-hidden="true">📖</span></div>
             <% if(course.getDescription()!=null && !course.getDescription().isBlank()) { %><p class="small text-body-secondary"><%= Html.escape(course.getDescription()) %></p><% } %>
             <div class="d-flex justify-content-between small text-body-secondary mb-2"><span><%= course.getCompletedTaskCount() %> of <%= course.getTaskCount() %> tasks</span><span><%= course.getProgressPercent() %>%</span></div><div class="progress mb-3" role="progressbar" aria-label="<%= Html.escape(course.getCourseName()) %> completion" aria-valuenow="<%= course.getProgressPercent() %>" aria-valuemin="0" aria-valuemax="100"><div class="progress-bar" style="width:<%= course.getProgressPercent() %>%"></div></div>
             <div class="d-flex flex-wrap gap-2">
-                <% if(course.getQuizCount()>0) { %>
-                <a class="btn btn-sm btn-primary rounded-pill" href="<%= request.getContextPath() %>/QuizController?courseId=<%= course.getCourseId() %>">Take quiz (<%= course.getQuizCount() %>)</a>
+                <% if(relatedQuizzes!=null && !relatedQuizzes.isEmpty()) { %>
+                <details class="sf-course-quizzes">
+                    <summary class="btn btn-sm btn-primary rounded-pill"><%= relatedQuizzes.size() %> related quizzes</summary>
+                    <div class="sf-course-quiz-list mt-3">
+                        <p class="small text-body-secondary mb-2">Choose a quiz from <%= Html.escape(course.getCourseName()) %>:</p>
+                        <ul class="list-group list-group-flush">
+                            <% for(Quiz quiz:relatedQuizzes) { %>
+                            <li class="list-group-item px-0">
+                                <a class="d-flex justify-content-between align-items-start gap-2" href="<%= request.getContextPath() %>/QuizController?quizId=<%= quiz.getQuizId() %>&amp;courseId=<%= course.getCourseId() %>">
+                                    <span><strong><%= Html.escape(quiz.getQuizTitle()) %></strong><br><small class="text-body-secondary"><%= Html.escape(quiz.getLessonTitle()) %> · <%= quiz.getQuestionCount() %> questions</small></span>
+                                    <span aria-hidden="true">→</span>
+                                </a>
+                            </li>
+                            <% } %>
+                        </ul>
+                    </div>
+                </details>
                 <a class="btn btn-sm btn-outline-primary rounded-pill" href="<%= request.getContextPath() %>/QuizHistoryController?courseId=<%= course.getCourseId() %>">Quiz history</a>
                 <% } else { %>
                 <button class="btn btn-sm btn-outline-secondary rounded-pill" type="button" disabled>No quiz yet</button>

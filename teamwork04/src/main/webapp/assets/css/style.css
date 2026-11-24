@@ -442,6 +442,10 @@ body {
 .sf-filters .form-select { width: auto; min-width: 130px; }
 .sf-edit-details { position: relative; }
 .sf-edit-details > summary { cursor: pointer; }
+.sf-course-quizzes { flex-basis: 100%; }
+.sf-course-quizzes > summary { cursor: pointer; }
+.sf-course-quiz-list { max-height: 18rem; overflow-y: auto; }
+.sf-course-quiz-list .list-group-item { background: transparent; }
 .sf-edit-form { display: grid; min-width: min(320px, 82vw); gap: 10px; margin-top: 10px; padding: 14px; border: 1px solid var(--sf-border); border-radius: 12px; background: white; box-shadow: 0 10px 30px rgba(33,26,53,.12); }
 .sf-edit-form .form-label { margin: 0; font-size: .8rem; }
 .sf-course-category { color: var(--sf-primary-hover); font-size: .75rem; font-weight: 700; }
