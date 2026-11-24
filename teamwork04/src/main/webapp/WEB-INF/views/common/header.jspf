@@ -46,6 +46,6 @@
 <nav>
   <a href="<%= ctx %>/study">self study</a>
   <a href="<%= ctx %>/dashboard">dashboard</a>
-  <a href="<%= ctx %>/activity">exam history</a>
+  <a href="<%= ctx %>/activity">Quiz History</a>
 </nav>
 <main>
