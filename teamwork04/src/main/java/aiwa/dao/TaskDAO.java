@@ -4,138 +4,85 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
 import aiwa.entity.Task;
-import aiwa.ulti.Ulti;
 
-/**
- * lessons / lesson_progress / quizzes を扱う DAO
- * （Task = 「完了させるレッスン」として扱う）
- */
 public class TaskDAO {
+	private static final String SELECT = "SELECT t.*,c.course_name FROM tasks t LEFT JOIN courses c ON c.course_id=t.course_id ";
 
-	private static final String BASE_SQL = "SELECT l.lesson_id, l.chapter_id, l.lesson_title, l.content, l.example_code, l.lesson_order, "
-			+ "  COALESCE(p.is_completed, 0) AS is_completed, p.completed_at, "
-			+ "  q.quiz_id, q.quiz_title "
-			+ "FROM lessons l "
-			+ "LEFT JOIN lesson_progress p ON p.lesson_id = l.lesson_id AND p.user_id = "
-			+ "(SELECT user_id FROM users WHERE email = 'quiz-guest@studyflow.local') "
-			+ "LEFT JOIN quizzes q ON q.lesson_id = l.lesson_id ";
-
-	/** チャプター内のレッスン一覧（lesson_order 順） */
-	public List<Task> findByChapter(int chapterId) throws SQLException {
-		List<Task> list = new ArrayList<>();
-		try (Connection con = Ulti.getConnection();
-				PreparedStatement ps = con
-						.prepareStatement(BASE_SQL + "WHERE l.chapter_id = ? ORDER BY l.lesson_order")) {
-			ps.setInt(1, chapterId);
-			try (ResultSet rs = ps.executeQuery()) {
-				while (rs.next()) {
-					list.add(map(rs));
-				}
-			}
+	public List<Task> findAll(long userId, String status, String priority, Integer courseId, int limit) throws SQLException {
+		StringBuilder sql = new StringBuilder(SELECT).append("WHERE t.user_id=? ");
+		List<Object> values = new ArrayList<>(); values.add(userId);
+		if (status != null && !status.isBlank()) { sql.append("AND t.status=? "); values.add(status); }
+		if (priority != null && !priority.isBlank()) { sql.append("AND t.priority=? "); values.add(priority); }
+		if (courseId != null && courseId > 0) { sql.append("AND t.course_id=? "); values.add(courseId); }
+		if (limit > 0) sql.append("AND t.status <> 'done' ");
+		sql.append("ORDER BY CASE WHEN t.status='done' THEN 1 ELSE 0 END, CASE WHEN t.due_at IS NULL THEN 1 ELSE 0 END, t.due_at, t.created_at DESC");
+		if (limit > 0) sql.append(" LIMIT ?");
+		List<Task> tasks = new ArrayList<>();
+		try (Connection connection = Database.getConnection(); PreparedStatement statement = connection.prepareStatement(sql.toString())) {
+			int i = 1; for (Object value : values) statement.setObject(i++, value);
+			if (limit > 0) statement.setInt(i, limit);
+			try (ResultSet rs = statement.executeQuery()) { while (rs.next()) tasks.add(map(rs)); }
 		}
-		return list;
+		return tasks;
 	}
 
-	/** レッスン1件（見つからなければ null） */
-	public Task findById(int lessonId) throws SQLException {
-		try (Connection con = Ulti.getConnection();
-				PreparedStatement ps = con.prepareStatement(BASE_SQL + "WHERE l.lesson_id = ?")) {
-			ps.setInt(1, lessonId);
-			try (ResultSet rs = ps.executeQuery()) {
-				if (rs.next()) {
-					return map(rs);
-				}
-			}
-		}
-		return null;
-	}
-
-	/** 完了 / 未完了 の切り替え（lesson_id は UNIQUE なので UPSERT） */
-	public void setCompleted(int lessonId, boolean completed) throws SQLException {
-		String sql = "INSERT INTO lesson_progress (user_id, lesson_id, is_completed, completed_at) "
-				+ "VALUES (?, ?, ?, CASE WHEN ? = 1 THEN datetime('now','localtime') ELSE NULL END) "
-				+ "ON CONFLICT(user_id, lesson_id) DO UPDATE SET "
-				+ "  is_completed = excluded.is_completed, "
-				+ "  completed_at = excluded.completed_at";
-		int flag = completed ? 1 : 0;
-		try (Connection con = Ulti.getConnection();
-				PreparedStatement ps = con.prepareStatement(sql)) {
-			ps.setLong(1, ensureQuizGuestUser(con));
-			ps.setInt(2, lessonId);
-			ps.setInt(3, flag);
-			ps.setInt(4, flag);
-			ps.executeUpdate();
+	public int create(Task task) throws SQLException {
+		String sql = "INSERT INTO tasks(user_id,course_id,title,description,due_at,priority,status,completed_at) VALUES(?,?,?,?,?,?,?,CASE WHEN ?='done' THEN CURRENT_TIMESTAMP ELSE NULL END)";
+		try (Connection connection = Database.getConnection(); PreparedStatement statement = connection.prepareStatement(sql)) {
+			statement.setLong(1, task.getUserId()); setNullableInt(statement, 2, task.getCourseId());
+			statement.setString(3, task.getTitle()); statement.setString(4, task.getDescription());
+			statement.setString(5, format(task.getDueAt())); statement.setString(6, task.getPriority()); statement.setString(7, task.getStatus()); statement.setString(8, task.getStatus());
+			return statement.executeUpdate();
 		}
 	}
 
-	private long ensureQuizGuestUser(Connection con) throws SQLException {
-		String email = "quiz-guest@studyflow.local";
-		try (PreparedStatement insert = con.prepareStatement(
-				"INSERT OR IGNORE INTO users(username, email, password_hash) VALUES (?, ?, ?)")) {
-			insert.setString(1, "StudyFlow Quiz Guest");
-			insert.setString(2, email);
-			insert.setString(3, "!disabled-quiz-guest-account!");
-			insert.executeUpdate();
-		}
-		try (PreparedStatement query = con.prepareStatement("SELECT user_id FROM users WHERE email = ?")) {
-			query.setString(1, email);
-			try (ResultSet rs = query.executeQuery()) {
-				if (rs.next()) return rs.getLong(1);
-			}
-		}
-		throw new SQLException("Could not resolve the quiz guest account");
-	}
-
-	public int countAll() throws SQLException {
-		return count("SELECT COUNT(*) FROM lessons");
-	}
-
-	public int countCompleted() throws SQLException {
-		return count("SELECT COUNT(*) FROM lesson_progress WHERE user_id = (SELECT user_id FROM users WHERE email = 'quiz-guest@studyflow.local') AND is_completed = 1");
-	}
-
-	/** 最近完了したレッスン（新しい順） */
-	public List<Task> findRecentCompleted(int limit) throws SQLException {
-		List<Task> list = new ArrayList<>();
-		try (Connection con = Ulti.getConnection();
-				PreparedStatement ps = con.prepareStatement(
-						BASE_SQL + "WHERE p.is_completed = 1 ORDER BY p.completed_at DESC LIMIT ?")) {
-			ps.setInt(1, limit);
-			try (ResultSet rs = ps.executeQuery()) {
-				while (rs.next()) {
-					list.add(map(rs));
-				}
-			}
-		}
-		return list;
-	}
-
-	private int count(String sql) throws SQLException {
-		try (Connection con = Ulti.getConnection();
-				Statement st = con.createStatement();
-				ResultSet rs = st.executeQuery(sql)) {
-			return rs.next() ? rs.getInt(1) : 0;
+	public boolean update(Task task) throws SQLException {
+		String sql = "UPDATE tasks SET course_id=?,title=?,description=?,due_at=?,priority=?,status=?,completed_at=CASE WHEN ?='done' THEN COALESCE(completed_at,CURRENT_TIMESTAMP) ELSE NULL END WHERE task_id=? AND user_id=?";
+		try (Connection connection = Database.getConnection(); PreparedStatement statement = connection.prepareStatement(sql)) {
+			setNullableInt(statement, 1, task.getCourseId()); statement.setString(2, task.getTitle()); statement.setString(3, task.getDescription());
+			statement.setString(4, format(task.getDueAt())); statement.setString(5, task.getPriority()); statement.setString(6, task.getStatus());
+			statement.setString(7, task.getStatus()); statement.setInt(8, task.getTaskId()); statement.setLong(9, task.getUserId());
+			return statement.executeUpdate() == 1;
 		}
 	}
 
-	private Task map(ResultSet rs) throws SQLException {
-		Task t = new Task();
-		t.setLessonId(rs.getInt("lesson_id"));
-		t.setChapterId(rs.getInt("chapter_id"));
-		t.setTitle(rs.getString("lesson_title"));
-		t.setContent(rs.getString("content"));
-		t.setExampleCode(rs.getString("example_code"));
-		t.setLessonOrder(rs.getInt("lesson_order"));
-		t.setCompleted(rs.getInt("is_completed") == 1);
-		t.setCompletedAt(rs.getString("completed_at"));
-		int quizId = rs.getInt("quiz_id");
-		t.setQuizId(rs.wasNull() ? null : quizId);
-		t.setQuizTitle(rs.getString("quiz_title"));
-		return t;
+	public boolean setCompleted(int taskId, long userId, boolean completed) throws SQLException {
+		String sql = "UPDATE tasks SET status=?,completed_at=? WHERE task_id=? AND user_id=?";
+		try (Connection connection = Database.getConnection(); PreparedStatement statement = connection.prepareStatement(sql)) {
+			statement.setString(1, completed ? "done" : "todo");
+			statement.setString(2, completed ? LocalDateTime.now().toString().replace('T', ' ') : null);
+			statement.setInt(3, taskId); statement.setLong(4, userId);
+			return statement.executeUpdate() == 1;
+		}
 	}
+
+	public boolean delete(int taskId, long userId) throws SQLException {
+		try (Connection connection = Database.getConnection(); PreparedStatement statement = connection.prepareStatement("DELETE FROM tasks WHERE task_id=? AND user_id=?")) {
+			statement.setInt(1, taskId); statement.setLong(2, userId); return statement.executeUpdate() == 1;
+		}
+	}
+
+	public int count(long userId, String status) throws SQLException {
+		String sql = "SELECT COUNT(*) FROM tasks WHERE user_id=?" + (status == null ? "" : " AND status=?");
+		try (Connection connection = Database.getConnection(); PreparedStatement statement = connection.prepareStatement(sql)) {
+			statement.setLong(1, userId); if (status != null) statement.setString(2, status);
+			try (ResultSet rs = statement.executeQuery()) { return rs.next() ? rs.getInt(1) : 0; }
+		}
+	}
+
+	private static Task map(ResultSet rs) throws SQLException {
+		Task task = new Task(); task.setTaskId(rs.getInt("task_id")); task.setUserId(rs.getLong("user_id"));
+		int courseId = rs.getInt("course_id"); task.setCourseId(rs.wasNull() ? null : courseId);
+		task.setCourseName(rs.getString("course_name")); task.setTitle(rs.getString("title")); task.setDescription(rs.getString("description"));
+		task.setDueAt(parse(rs.getString("due_at"))); task.setPriority(rs.getString("priority")); task.setStatus(rs.getString("status"));
+		task.setCreatedAt(parse(rs.getString("created_at"))); task.setCompletedAt(parse(rs.getString("completed_at"))); return task;
+	}
+	private static String format(LocalDateTime value) { return value == null ? null : value.toString().replace('T', ' '); }
+	private static LocalDateTime parse(String value) { return value == null ? null : LocalDateTime.parse(value.replace(' ', 'T')); }
+	private static void setNullableInt(PreparedStatement ps, int index, Integer value) throws SQLException { if (value == null) ps.setNull(index, java.sql.Types.INTEGER); else ps.setInt(index, value); }
 }

@@ -1,101 +1,40 @@
 package aiwa.entity;
 
-/**
- * lessons + lesson_progress (+ quizzes) をまとめた「やること（レッスン）」
- */
+import java.time.LocalDateTime;
+
 public class Task {
-	private int lessonId;
-	private int chapterId;
-	private String title; // lesson_title
-	private String content;
-	private String exampleCode;
-	private int lessonOrder;
-	private boolean completed; // lesson_progress.is_completed
-	private String completedAt; // lesson_progress.completed_at
-	private Integer quizId; // クイズが無ければ null
-	private String quizTitle;
+	private int taskId;
+	private long userId;
+	private Integer courseId;
+	private String courseName;
+	private String title;
+	private String description;
+	private LocalDateTime dueAt;
+	private String priority;
+	private String status;
+	private LocalDateTime createdAt;
+	private LocalDateTime completedAt;
 
-	public boolean hasQuiz() {
-		return quizId != null;
-	}
-
-	public int getLessonId() {
-		return lessonId;
-	}
-
-	public void setLessonId(int lessonId) {
-		this.lessonId = lessonId;
-	}
-
-	public int getChapterId() {
-		return chapterId;
-	}
-
-	public void setChapterId(int chapterId) {
-		this.chapterId = chapterId;
-	}
-
-	public String getTitle() {
-		return title;
-	}
-
-	public void setTitle(String title) {
-		this.title = title;
-	}
-
-	public String getContent() {
-		return content;
-	}
-
-	public void setContent(String content) {
-		this.content = content;
-	}
-
-	public String getExampleCode() {
-		return exampleCode;
-	}
-
-	public void setExampleCode(String exampleCode) {
-		this.exampleCode = exampleCode;
-	}
-
-	public int getLessonOrder() {
-		return lessonOrder;
-	}
-
-	public void setLessonOrder(int lessonOrder) {
-		this.lessonOrder = lessonOrder;
-	}
-
-	public boolean isCompleted() {
-		return completed;
-	}
-
-	public void setCompleted(boolean completed) {
-		this.completed = completed;
-	}
-
-	public String getCompletedAt() {
-		return completedAt;
-	}
-
-	public void setCompletedAt(String completedAt) {
-		this.completedAt = completedAt;
-	}
-
-	public Integer getQuizId() {
-		return quizId;
-	}
-
-	public void setQuizId(Integer quizId) {
-		this.quizId = quizId;
-	}
-
-	public String getQuizTitle() {
-		return quizTitle;
-	}
-
-	public void setQuizTitle(String quizTitle) {
-		this.quizTitle = quizTitle;
-	}
+	public int getTaskId() { return taskId; }
+	public void setTaskId(int taskId) { this.taskId = taskId; }
+	public long getUserId() { return userId; }
+	public void setUserId(long userId) { this.userId = userId; }
+	public Integer getCourseId() { return courseId; }
+	public void setCourseId(Integer courseId) { this.courseId = courseId; }
+	public String getCourseName() { return courseName; }
+	public void setCourseName(String courseName) { this.courseName = courseName; }
+	public String getTitle() { return title; }
+	public void setTitle(String title) { this.title = title; }
+	public String getDescription() { return description; }
+	public void setDescription(String description) { this.description = description; }
+	public LocalDateTime getDueAt() { return dueAt; }
+	public void setDueAt(LocalDateTime dueAt) { this.dueAt = dueAt; }
+	public String getPriority() { return priority; }
+	public void setPriority(String priority) { this.priority = priority; }
+	public String getStatus() { return status; }
+	public void setStatus(String status) { this.status = status; }
+	public LocalDateTime getCreatedAt() { return createdAt; }
+	public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
+	public LocalDateTime getCompletedAt() { return completedAt; }
+	public void setCompletedAt(LocalDateTime completedAt) { this.completedAt = completedAt; }
 }

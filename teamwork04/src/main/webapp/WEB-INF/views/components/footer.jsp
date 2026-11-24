@@ -28,7 +28,7 @@
 
             <div class="col-12 col-md-6">
 
-                <a href="<%= request.getContextPath() %>/StudyController"
+                <a href="<%= request.getContextPath() %>/home"
                    class="sf-footer-brand">
 
                     <span class="sf-footer-logo" aria-hidden="true">
@@ -65,6 +65,12 @@
                         </li>
 
                         <li>
+                            <a href="<%= contextPath %>/CoursesController">
+                                My Courses
+                            </a>
+                        </li>
+
+                        <li>
                             <a href="<%= contextPath %>/TaskController">
                                 My Tasks
                             </a>
@@ -75,6 +81,8 @@
                                 Analytics
                             </a>
                         </li>
+                        <li><a href="<%= contextPath %>/QuizController">Quizzes</a></li>
+                        <li><a href="<%= contextPath %>/QuizHistoryController">Quiz History</a></li>
 
                     </ul>
 
