@@ -25,18 +25,37 @@ public class StudysessionDAO {
 
 	/** 結果を保存して、採番された result_id を返す */
 	public int insert(StudySession s) throws SQLException {
-		String sql = "INSERT INTO quiz_results (quiz_id, score, total_questions, completed_at) "
-				+ "VALUES (?, ?, ?, datetime('now','localtime'))";
+		String sql = "INSERT INTO quiz_results (user_id, quiz_id, score, total_questions, completed_at) "
+				+ "VALUES (?, ?, ?, ?, datetime('now','localtime'))";
 		try (Connection con = Ulti.getConnection();
 				PreparedStatement ps = con.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
-			ps.setInt(1, s.getQuizId());
-			ps.setInt(2, s.getScore());
-			ps.setInt(3, s.getTotalQuestions());
+			ps.setLong(1, ensureQuizGuestUser(con));
+			ps.setInt(2, s.getQuizId());
+			ps.setInt(3, s.getScore());
+			ps.setInt(4, s.getTotalQuestions());
 			ps.executeUpdate();
 			try (ResultSet keys = ps.getGeneratedKeys()) {
 				return keys.next() ? keys.getInt(1) : -1;
 			}
 		}
+	}
+
+	private long ensureQuizGuestUser(Connection con) throws SQLException {
+		String email = "quiz-guest@studyflow.local";
+		try (PreparedStatement insert = con.prepareStatement(
+				"INSERT OR IGNORE INTO users(username, email, password_hash) VALUES (?, ?, ?)")) {
+			insert.setString(1, "StudyFlow Quiz Guest");
+			insert.setString(2, email);
+			insert.setString(3, "!disabled-quiz-guest-account!");
+			insert.executeUpdate();
+		}
+		try (PreparedStatement query = con.prepareStatement("SELECT user_id FROM users WHERE email = ?")) {
+			query.setString(1, email);
+			try (ResultSet rs = query.executeQuery()) {
+				if (rs.next()) return rs.getLong(1);
+			}
+		}
+		throw new SQLException("Could not resolve the quiz guest account");
 	}
 
 	public StudySession findById(int resultId) throws SQLException {
