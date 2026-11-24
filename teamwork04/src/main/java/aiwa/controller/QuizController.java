@@ -44,20 +44,18 @@ public class QuizController extends HttpServlet {
 			} else if (quizId != null) {
 				Quiz quiz = model.getQuiz(quizId, userId);
 				if (quiz == null || quiz.getQuestionCount() < 1) { response.sendError(HttpServletResponse.SC_NOT_FOUND); return; }
+				if (courseId != null && quiz.getCourseId() != courseId) { response.sendError(HttpServletResponse.SC_NOT_FOUND); return; }
 				request.setAttribute("quiz", quiz);
 				request.setAttribute("questions", model.getQuestions(quizId));
 				request.getRequestDispatcher("/WEB-INF/views/quiz-take.jsp").forward(request, response);
 			} else {
-				if (courseId == null) {
-					request.setAttribute("quizzes", model.getAvailable(userId));
-				} else {
-					if (!courses.isAvailableToUser(courseId, userId)) { response.sendError(HttpServletResponse.SC_NOT_FOUND); return; }
-					request.setAttribute("courseId", courseId);
-					for (Study course : courses.getCourses(userId)) {
-						if (course.getCourseId() == courseId) { request.setAttribute("courseName", course.getCourseName()); break; }
-					}
-					request.setAttribute("quizzes", model.getAvailableForCourse(userId, courseId));
+				if (courseId == null) { response.sendRedirect(request.getContextPath() + "/CoursesController"); return; }
+				if (!courses.isAvailableToUser(courseId, userId)) { response.sendError(HttpServletResponse.SC_NOT_FOUND); return; }
+				request.setAttribute("courseId", courseId);
+				for (Study course : courses.getCourses(userId)) {
+					if (course.getCourseId() == courseId) { request.setAttribute("courseName", course.getCourseName()); break; }
 				}
+				request.setAttribute("quizzes", model.getAvailableForCourse(userId, courseId));
 				request.getRequestDispatcher("/WEB-INF/views/quiz-list.jsp").forward(request, response);
 			}
 		} catch (SQLException e) {
@@ -71,11 +69,13 @@ public class QuizController extends HttpServlet {
 		request.setCharacterEncoding("UTF-8");
 		if (!Html.validCsrfToken(request)) {
 			ControllerSupport.flash(request, "warning", "This quiz form expired. Please open the quiz again.");
-			response.sendRedirect(request.getContextPath() + "/QuizController");
+			Integer courseId = ControllerSupport.positiveInt(request.getParameter("courseId"));
+			response.sendRedirect(request.getContextPath() + (courseId == null ? "/CoursesController" : "/QuizController?courseId=" + courseId));
 			return;
 		}
 		Integer quizId = ControllerSupport.positiveInt(request.getParameter("quizId"));
-		if (quizId == null) { response.sendError(HttpServletResponse.SC_BAD_REQUEST); return; }
+		Integer courseId = ControllerSupport.positiveInt(request.getParameter("courseId"));
+		if (quizId == null || courseId == null) { response.sendError(HttpServletResponse.SC_BAD_REQUEST); return; }
 		Map<Integer, Integer> answers = new HashMap<>();
 		Enumeration<String> names = request.getParameterNames();
 		while (names.hasMoreElements()) {
@@ -86,15 +86,18 @@ public class QuizController extends HttpServlet {
 			if (questionId != null && optionId != null) answers.put(questionId, optionId);
 		}
 		try {
-			int resultId = model.submit(ControllerSupport.userId(request), quizId, answers);
+			long userId = ControllerSupport.userId(request);
+			Quiz quiz = model.getQuiz(quizId, userId);
+			if (quiz == null || quiz.getQuestionCount() < 1 || quiz.getCourseId() != courseId) { response.sendError(HttpServletResponse.SC_NOT_FOUND); return; }
+			int resultId = model.submit(userId, quizId, answers);
 			response.sendRedirect(request.getContextPath() + "/QuizController?resultId=" + resultId);
 		} catch (IllegalArgumentException e) {
 			ControllerSupport.flash(request, "warning", e.getMessage());
-			response.sendRedirect(request.getContextPath() + "/QuizController?quizId=" + quizId);
+			response.sendRedirect(request.getContextPath() + "/QuizController?quizId=" + quizId + "&courseId=" + courseId);
 		} catch (SQLException e) {
 			getServletContext().log("Quiz attempt could not be saved", e);
 			ControllerSupport.flash(request, "danger", "Your quiz result could not be saved. Please try again.");
-			response.sendRedirect(request.getContextPath() + "/QuizController?quizId=" + quizId);
+			response.sendRedirect(request.getContextPath() + "/QuizController?quizId=" + quizId + "&courseId=" + courseId);
 		}
 	}
 }

@@ -22,7 +22,6 @@
                         <% if (signedIn) { %>
                         <a class="btn btn-primary rounded-pill px-4 py-2" href="<%= request.getContextPath() %>/DashboardController">Open my dashboard <span aria-hidden="true">→</span></a>
                         <a class="btn btn-outline-primary rounded-pill px-4 py-2" href="<%= request.getContextPath() %>/CoursesController">My courses</a>
-                        <a class="btn btn-outline-primary rounded-pill px-4 py-2" href="<%= request.getContextPath() %>/QuizController">Browse quizzes</a>
                         <% } else { %>
                         <a class="btn btn-primary rounded-pill px-4 py-2" href="<%= request.getContextPath() %>/RegisterController">Create your account <span aria-hidden="true">→</span></a>
                         <a class="btn btn-outline-primary rounded-pill px-4 py-2" href="<%= request.getContextPath() %>/LoginController">Sign in</a>

@@ -28,7 +28,7 @@
                 <h2 class="h5 fw-bold mt-2"><%= Html.escape(quiz.getQuizTitle()) %></h2>
                 <p class="text-body-secondary mb-1"><%= Html.escape(quiz.getLessonTitle()) %></p>
                 <p class="small text-body-secondary"><%= quiz.getQuestionCount() %> questions</p>
-                <a class="btn btn-primary rounded-pill px-4" href="<%= request.getContextPath() %>/QuizController?quizId=<%= quiz.getQuizId() %>">Start quiz</a>
+                <a class="btn btn-primary rounded-pill px-4" href="<%= request.getContextPath() %>/QuizController?quizId=<%= quiz.getQuizId() %>&amp;courseId=<%= quiz.getCourseId() %>">Start quiz</a>
             </div></article></div>
         <% } %>
         </div>

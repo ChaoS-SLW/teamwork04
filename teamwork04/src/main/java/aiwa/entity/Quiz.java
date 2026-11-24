@@ -2,6 +2,7 @@ package aiwa.entity;
 
 public class Quiz {
 	private int quizId;
+	private int courseId;
 	private String quizTitle;
 	private String categoryName;
 	private String courseName;
@@ -10,6 +11,8 @@ public class Quiz {
 
 	public int getQuizId() { return quizId; }
 	public void setQuizId(int quizId) { this.quizId = quizId; }
+	public int getCourseId() { return courseId; }
+	public void setCourseId(int courseId) { this.courseId = courseId; }
 	public String getQuizTitle() { return quizTitle; }
 	public void setQuizTitle(String quizTitle) { this.quizTitle = quizTitle; }
 	public String getCategoryName() { return categoryName; }

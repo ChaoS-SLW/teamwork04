@@ -81,8 +81,6 @@
                                 Analytics
                             </a>
                         </li>
-                        <li><a href="<%= contextPath %>/QuizController">Quizzes</a></li>
-                        <li><a href="<%= contextPath %>/QuizHistoryController">Quiz History</a></li>
 
                     </ul>
 

@@ -15,8 +15,8 @@
         <p class="h4"><%= attempt.getPercent() %>%</p>
         <p class="text-body-secondary">Saved on <%= Html.escape(attempt.getCompletedAt()) %></p>
         <div class="d-flex justify-content-center flex-wrap gap-2 mt-4">
-            <a class="btn btn-primary rounded-pill px-4" href="<%= request.getContextPath() %>/QuizController?quizId=<%= attempt.getQuizId() %>">Try again</a>
-            <a class="btn btn-outline-primary rounded-pill px-4" href="<%= request.getContextPath() %>/QuizHistoryController">Quiz history</a>
+            <a class="btn btn-primary rounded-pill px-4" href="<%= request.getContextPath() %>/QuizController?quizId=<%= attempt.getQuizId() %>&amp;courseId=<%= attempt.getCourseId() %>">Try again</a>
+            <a class="btn btn-outline-primary rounded-pill px-4" href="<%= request.getContextPath() %>/QuizHistoryController?courseId=<%= attempt.getCourseId() %>">Course quiz history</a>
             <a class="btn btn-outline-primary rounded-pill px-4" href="<%= request.getContextPath() %>/home">Home</a>
         </div>
     </div></section>

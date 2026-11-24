@@ -11,13 +11,14 @@
 <body>
 <jsp:include page="/WEB-INF/views/components/header.jsp" />
 <main class="container-xl sf-page py-4 py-lg-5">
-    <p><a href="<%= request.getContextPath() %>/QuizController">← Quiz library</a></p>
+    <p><a href="<%= request.getContextPath() %>/QuizController?courseId=<%= quiz.getCourseId() %>">← Back to <%= Html.escape(quiz.getCourseName()) %> quizzes</a></p>
     <header class="sf-page-heading"><div><span class="sf-eyebrow"><%= Html.escape(quiz.getCourseName()) %> · <%= Html.escape(quiz.getLessonTitle()) %></span>
         <h1 class="fw-bold mt-2"><%= Html.escape(quiz.getQuizTitle()) %></h1><p class="text-body-secondary"><%= questions.size() %> questions · unanswered questions count as incorrect</p></div></header>
     <% if (flashMessage != null) { %><div class="alert alert-<%= Html.escape(request.getAttribute("flashKind")) %>" role="alert"><%= Html.escape(flashMessage) %></div><% } %>
     <form method="post" action="<%= request.getContextPath() %>/QuizController">
         <input type="hidden" name="csrfToken" value="<%= Html.csrfToken(request) %>">
         <input type="hidden" name="quizId" value="<%= quiz.getQuizId() %>">
+        <input type="hidden" name="courseId" value="<%= quiz.getCourseId() %>">
         <% int number = 0; for (QuizQuestion question : questions) { number++; %>
             <fieldset class="card sf-panel mb-3"><div class="card-body p-4">
                 <legend class="h5 fw-bold"><span class="text-body-secondary">Question <%= number %>.</span> <%= Html.escape(question.getQuestionText()) %></legend>

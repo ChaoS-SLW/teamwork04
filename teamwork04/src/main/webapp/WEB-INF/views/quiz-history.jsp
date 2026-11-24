@@ -18,7 +18,7 @@
 <jsp:include page="/WEB-INF/views/components/header.jsp" />
 <main class="container-xl sf-page py-4 py-lg-5">
     <header class="sf-page-heading"><div><span class="sf-eyebrow">YOUR PRACTICE</span><h1 class="fw-bold mt-2"><%= courseId == null ? "Quiz History" : "Quiz History · " + Html.escape(courseName) %></h1><p class="text-body-secondary"><%= courseId == null ? "Only your own saved attempts are shown." : "Your saved attempts for this course." %></p></div>
-        <a class="btn btn-primary rounded-pill px-4" href="<%= request.getContextPath() %>/QuizController<%= courseId == null ? "" : "?courseId=" + courseId %>">Browse quizzes</a></header>
+        <a class="btn btn-primary rounded-pill px-4" href="<%= courseId == null ? request.getContextPath() + "/CoursesController" : request.getContextPath() + "/QuizController?courseId=" + courseId %>"><%= courseId == null ? "Back to courses" : "Browse course quizzes" %></a></header>
     <section class="row g-3 mb-4" aria-label="Quiz summary">
         <div class="col-12 col-sm-4"><article class="card sf-stat-card h-100"><div class="card-body p-4"><p class="text-body-secondary mb-1">Attempts</p><p class="display-6 fw-bold mb-0"><%= attempts == null ? 0 : attempts.size() %></p></div></article></div>
         <div class="col-12 col-sm-4"><article class="card sf-stat-card h-100"><div class="card-body p-4"><p class="text-body-secondary mb-1">Average score</p><p class="display-6 fw-bold mb-0"><%= average %>%</p></div></article></div>
@@ -31,7 +31,7 @@
         <% for (QuizAttempt attempt : attempts) { %>
             <tr><td><strong><%= Html.escape(attempt.getQuizTitle()) %></strong><br><small class="text-body-secondary"><%= Html.escape(attempt.getLessonTitle()) %></small></td>
                 <td><%= Html.escape(attempt.getCourseName()) %></td><td><%= attempt.getScore() %> / <%= attempt.getTotalQuestions() %> (<%= attempt.getPercent() %>%)</td>
-                <td><%= Html.escape(attempt.getCompletedAt()) %></td><td><a href="<%= request.getContextPath() %>/QuizController?quizId=<%= attempt.getQuizId() %>">Retry</a></td></tr>
+                <td><%= Html.escape(attempt.getCompletedAt()) %></td><td><a href="<%= request.getContextPath() %>/QuizController?quizId=<%= attempt.getQuizId() %>&amp;courseId=<%= attempt.getCourseId() %>">Retry</a></td></tr>
         <% } %>
         </tbody></table></div>
     <% } %>

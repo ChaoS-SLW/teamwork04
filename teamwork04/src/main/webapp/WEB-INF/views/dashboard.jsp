@@ -33,7 +33,6 @@
             </div><div class="col-12 col-lg-5 d-flex flex-wrap gap-2 justify-content-lg-end">
                 <a href="<%= request.getContextPath() %>/CoursesController" class="btn btn-primary rounded-pill px-4">+ Add course</a>
                 <a href="<%= request.getContextPath() %>/TaskController" class="btn btn-outline-primary rounded-pill px-4">+ New task</a>
-                <a href="<%= request.getContextPath() %>/QuizController" class="btn btn-outline-primary rounded-pill px-4">Take a quiz</a>
             </div></div>
         </section>
         <section class="row g-3 mb-4" aria-label="Study overview">

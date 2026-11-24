@@ -32,7 +32,7 @@ public class QuizDAO {
 	}
 
 	private List<Quiz> findAvailable(long userId, Integer courseId) throws SQLException {
-		String sql = "SELECT q.quiz_id,q.quiz_title,ca.category_name,c.course_name,l.lesson_title,COUNT(DISTINCT qu.question_id) question_count "
+		String sql = "SELECT q.quiz_id,q.quiz_title,c.course_id,ca.category_name,c.course_name,l.lesson_title,COUNT(DISTINCT qu.question_id) question_count "
 				+ "FROM quizzes q JOIN lessons l ON l.lesson_id=q.lesson_id "
 				+ "JOIN chapters ch ON ch.chapter_id=l.chapter_id JOIN courses c ON c.course_id=ch.course_id "
 				+ "JOIN categories ca ON ca.category_id=c.category_id "
@@ -53,7 +53,7 @@ public class QuizDAO {
 	}
 
 	public Quiz findQuiz(int quizId, long userId) throws SQLException {
-		String sql = "SELECT q.quiz_id,q.quiz_title,ca.category_name,c.course_name,l.lesson_title,COUNT(DISTINCT qu.question_id) question_count "
+		String sql = "SELECT q.quiz_id,q.quiz_title,c.course_id,ca.category_name,c.course_name,l.lesson_title,COUNT(DISTINCT qu.question_id) question_count "
 				+ "FROM quizzes q JOIN lessons l ON l.lesson_id=q.lesson_id "
 				+ "JOIN chapters ch ON ch.chapter_id=l.chapter_id JOIN courses c ON c.course_id=ch.course_id "
 				+ "JOIN categories ca ON ca.category_id=c.category_id "
@@ -165,7 +165,7 @@ public class QuizDAO {
 	}
 
 	private static String historySql() {
-		return "SELECT r.result_id,r.quiz_id,q.quiz_title,c.course_name,l.lesson_title,r.score,r.total_questions,r.completed_at "
+		return "SELECT r.result_id,r.quiz_id,c.course_id,q.quiz_title,c.course_name,l.lesson_title,r.score,r.total_questions,r.completed_at "
 				+ "FROM quiz_results r JOIN quizzes q ON q.quiz_id=r.quiz_id "
 				+ "JOIN lessons l ON l.lesson_id=q.lesson_id JOIN chapters ch ON ch.chapter_id=l.chapter_id "
 				+ "JOIN courses c ON c.course_id=ch.course_id";
@@ -174,6 +174,7 @@ public class QuizDAO {
 	private static Quiz mapQuiz(ResultSet rs) throws SQLException {
 		Quiz quiz = new Quiz();
 		quiz.setQuizId(rs.getInt("quiz_id"));
+		quiz.setCourseId(rs.getInt("course_id"));
 		quiz.setQuizTitle(rs.getString("quiz_title"));
 		quiz.setCategoryName(rs.getString("category_name"));
 		quiz.setCourseName(rs.getString("course_name"));
@@ -186,6 +187,7 @@ public class QuizDAO {
 		QuizAttempt attempt = new QuizAttempt();
 		attempt.setResultId(rs.getInt("result_id"));
 		attempt.setQuizId(rs.getInt("quiz_id"));
+		attempt.setCourseId(rs.getInt("course_id"));
 		attempt.setQuizTitle(rs.getString("quiz_title"));
 		attempt.setCourseName(rs.getString("course_name"));
 		attempt.setLessonTitle(rs.getString("lesson_title"));

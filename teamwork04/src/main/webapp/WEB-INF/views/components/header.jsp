@@ -26,8 +26,6 @@
                     <% if (signedIn) { %>
                     <li class="nav-item"><a class="nav-link sf-nav-link <%= isDashboard?"active":"" %>" href="<%= request.getContextPath() %>/DashboardController" <%= isDashboard?"aria-current=\"page\"":"" %>>Dashboard</a></li>
                     <li class="nav-item"><a class="nav-link sf-nav-link <%= isCourses?"active":"" %>" href="<%= request.getContextPath() %>/CoursesController" <%= isCourses?"aria-current=\"page\"":"" %>>My Courses</a></li>
-                    <li class="nav-item"><a class="nav-link sf-nav-link <%= currentPath.equals("/QuizController")?"active":"" %>" href="<%= request.getContextPath() %>/QuizController">Quizzes</a></li>
-                    <li class="nav-item"><a class="nav-link sf-nav-link <%= currentPath.equals("/QuizHistoryController")?"active":"" %>" href="<%= request.getContextPath() %>/QuizHistoryController">Quiz History</a></li>
                     <li class="nav-item"><a class="nav-link sf-nav-link <%= isTasks?"active":"" %>" href="<%= request.getContextPath() %>/TaskController" <%= isTasks?"aria-current=\"page\"":"" %>>My Tasks</a></li>
                     <li class="nav-item"><a class="nav-link sf-nav-link <%= isAnalytics?"active":"" %>" href="<%= request.getContextPath() %>/ActivityController" <%= isAnalytics?"aria-current=\"page\"":"" %>>Analytics</a></li>
                     <li class="nav-item"><form method="post" action="<%= request.getContextPath() %>/LogoutController"><input type="hidden" name="csrfToken" value="<%= aiwa.ulti.Html.csrfToken(request) %>"><button class="nav-link sf-nav-link" type="submit">Sign out</button></form></li>
