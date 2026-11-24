@@ -33,6 +33,9 @@
     boolean isTasks = currentPath.equals("/tasks");
 
     boolean isAnalytics = currentPath.equals("/analytics");
+
+    boolean isQuizHistory = currentPath.equals("/activity")
+            && request.getParameter("quizId") == null;
 %>
 
 <header class="sf-header">
@@ -173,6 +176,18 @@
 
                             </a>
 
+                        </li>
+
+
+                        <%-- Quiz History --%>
+                        <li class="nav-item">
+                            <a
+                                class="nav-link sf-nav-link
+                                <%= isQuizHistory ? "active" : "" %>"
+                                href="<%= request.getContextPath() %>/activity"
+                                <%= isQuizHistory ? "aria-current=\\"page\\"" : "" %>>
+                                <span>Quiz History</span>
+                            </a>
                         </li>
 
                     </ul>
