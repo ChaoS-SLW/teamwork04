@@ -20,9 +20,11 @@ public class LoginController extends HttpServlet {
 	private final UserDAO users = new UserDAO();
 
 	@Override
-	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+	protected void doGet(HttpServletRequest request, HttpServletResponse response)
+			throws ServletException, IOException {
 		if (request.getSession(false) != null && request.getSession(false).getAttribute("userId") instanceof Number) {
-			response.sendRedirect(request.getContextPath() + "/DashboardController"); return;
+			response.sendRedirect(request.getContextPath() + "/DashboardController");
+			return;
 		}
 		request.setAttribute("next", safeNext(request.getParameter("next")));
 		ControllerSupport.exposeFlash(request);
@@ -30,30 +32,42 @@ public class LoginController extends HttpServlet {
 	}
 
 	@Override
-	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+	protected void doPost(HttpServletRequest request, HttpServletResponse response)
+			throws ServletException, IOException {
 		request.setCharacterEncoding("UTF-8");
-		if (!Html.validCsrfToken(request)) { request.setAttribute("loginError", "This form expired. Refresh the page and try again."); request.setAttribute("next", safeNext(request.getParameter("next"))); request.getRequestDispatcher("/WEB-INF/views/login.jsp").forward(request,response); return; }
-		String email = request.getParameter("email");
+		if (!Html.validCsrfToken(request)) {
+			request.setAttribute("loginError", "This form expired. Refresh the page and try again.");
+			request.setAttribute("next", safeNext(request.getParameter("next")));
+			request.getRequestDispatcher("/WEB-INF/views/login.jsp").forward(request, response);
+			return;
+		}
+		String username = request.getParameter("username");
 		String password = request.getParameter("password");
 		String next = safeNext(request.getParameter("next"));
 		try {
-			User user = email == null || password == null ? null : users.findActiveByEmail(email.trim().toLowerCase());
+			username = username == null ? "" : username.trim();
+			User user = username.isEmpty() || password == null ? null : users.findActiveByUsername(username);
 			if (user == null || !PasswordHasher.verify(password.toCharArray(), user.getPasswordHash())) {
-				request.setAttribute("loginError", "Email or password is incorrect.");
+				request.setAttribute("loginError", "Name or password is incorrect.");
+				request.setAttribute("loginUsername", username);
 				request.setAttribute("next", next);
-				request.getRequestDispatcher("/WEB-INF/views/login.jsp").forward(request, response); return;
+				request.getRequestDispatcher("/WEB-INF/views/login.jsp").forward(request, response);
+				return;
 			}
 			ControllerSupport.establishUser(request, user.getUserId(), user.getUsername());
 			response.sendRedirect(request.getContextPath() + (next == null ? "/DashboardController" : next));
 		} catch (SQLException e) {
 			request.setAttribute("loginError", "Sign-in is temporarily unavailable. Please try again.");
+			request.setAttribute("loginUsername", username);
 			request.setAttribute("next", next);
 			request.getRequestDispatcher("/WEB-INF/views/login.jsp").forward(request, response);
 		}
 	}
 
 	private String safeNext(String next) {
-		if (next == null || next.isBlank() || !next.startsWith("/") || next.startsWith("//") || next.contains("\\") || next.contains("\r") || next.contains("\n")) return null;
+		if (next == null || next.isBlank() || !next.startsWith("/") || next.startsWith("//") || next.contains("\\")
+				|| next.contains("\r") || next.contains("\n"))
+			return null;
 		return next;
 	}
 }
