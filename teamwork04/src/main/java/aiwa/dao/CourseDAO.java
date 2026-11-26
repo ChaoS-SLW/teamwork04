@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import aiwa.entity.Category;
+import aiwa.entity.Lesson;
 import aiwa.entity.Study;
 
 public class CourseDAO {
@@ -57,6 +58,35 @@ public class CourseDAO {
 			}
 		}
 		return categories;
+	}
+
+	// NEW: course တစ်ခုထဲက chapter -> lesson အားလုံးကို အစဉ်လိုက် ယူမယ်
+	public List<Lesson> findLessons(int courseId) throws SQLException {
+		String sql = "SELECT l.lesson_id, ch.chapter_name, ch.chapter_order, l.lesson_title, l.content, l.example_code, l.lesson_order, "
+				+ "q.quiz_id, (SELECT COUNT(*) FROM questions qu WHERE qu.quiz_id=q.quiz_id) AS question_count "
+				+ "FROM lessons l JOIN chapters ch ON ch.chapter_id=l.chapter_id "
+				+ "LEFT JOIN quizzes q ON q.lesson_id=l.lesson_id "
+				+ "WHERE ch.course_id=? ORDER BY ch.chapter_order, l.lesson_order";
+		List<Lesson> lessons = new ArrayList<>();
+		try (Connection connection = Database.getConnection(); PreparedStatement statement = connection.prepareStatement(sql)) {
+			statement.setInt(1, courseId);
+			try (ResultSet rs = statement.executeQuery()) {
+				while (rs.next()) {
+					Lesson lesson = new Lesson();
+					lesson.setLessonId(rs.getInt("lesson_id"));
+					lesson.setChapterName(rs.getString("chapter_name"));
+					lesson.setChapterOrder(rs.getInt("chapter_order"));
+					lesson.setLessonTitle(rs.getString("lesson_title"));
+					lesson.setContent(rs.getString("content"));
+					lesson.setExampleCode(rs.getString("example_code"));
+					lesson.setLessonOrder(rs.getInt("lesson_order"));
+					lesson.setQuizId(rs.getInt("quiz_id"));
+					lesson.setQuestionCount(rs.getInt("question_count"));
+					lessons.add(lesson);
+				}
+			}
+		}
+		return lessons;
 	}
 
 	public int create(Study course) throws SQLException {

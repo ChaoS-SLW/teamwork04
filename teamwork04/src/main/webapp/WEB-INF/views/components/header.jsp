@@ -14,13 +14,13 @@
     String username = signedIn ? String.valueOf(userSession.getAttribute("username")) : "";
 %>
 <header class="sf-header">
-    <nav class="navbar lg:navbar-expand sf-navbar" aria-label="Main navigation">
+    <nav class="navbar sf-navbar" aria-label="Main navigation">
         <div class="container">
             <a class="navbar-brand sf-brand" href="<%= request.getContextPath() %>/home"><span class="sf-brand-icon" aria-hidden="true">✳</span><span class="sf-brand-text">studyflow<span class="sf-brand-dot">.</span></span></a>
             <% if (signedIn) { %><span class="sf-demo-badge">Hi, <%= aiwa.ulti.Html.escape(username) %></span><% } %>
-            <button class="btn-icon navbar-toggler" type="button" data-bs-toggle="drawer" data-bs-target="#studyflowNav" aria-controls="studyflowNav" aria-expanded="false" aria-label="Open navigation menu"><span class="navbar-toggler-icon" aria-hidden="true"></span></button>
-            <dialog class="drawer drawer-end" tabindex="-1" id="studyflowNav" aria-labelledby="studyflowNavLabel">
-                <div class="drawer-header"><h2 class="drawer-title h5" id="studyflowNavLabel">Navigation</h2><button type="button" class="btn-close" data-bs-dismiss="drawer" aria-label="Close navigation"></button></div>
+            
+            <div class="sf-nav-menu">
+                
                 <div class="drawer-body"><ul class="navbar-nav sf-nav-list">
                     <li class="nav-item"><a class="nav-link sf-nav-link <%= isHome?"active":"" %>" href="<%= request.getContextPath() %>/home" <%= isHome?"aria-current=\"page\"":"" %>>Home</a></li>
                     <% if (signedIn) { %>
@@ -34,7 +34,7 @@
                     <li class="nav-item"><a class="nav-link sf-nav-link" href="<%= request.getContextPath() %>/RegisterController">Create account</a></li>
                     <% } %>
                 </ul></div>
-            </dialog>
+            </div>
         </div>
     </nav>
 </header>

@@ -3,6 +3,7 @@ package aiwa.controller;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -13,6 +14,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import aiwa.entity.Category;
 import aiwa.entity.Quiz;
 import aiwa.entity.Study;
 import aiwa.model.CourseModel;
@@ -28,17 +30,71 @@ public class CoursesController extends HttpServlet {
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		response.setCharacterEncoding("UTF-8");
 		long userId = ControllerSupport.userId(request);
+
+		// URL ထဲက ?categoryId=... နဲ့ ?courseId=... ကို ဖတ်မယ် (မပါရင် null)
+		Integer categoryId = ControllerSupport.positiveInt(request.getParameter("categoryId"));
+		Integer courseId = ControllerSupport.positiveInt(request.getParameter("courseId"));
+
+		// page ၃ မျိုး: "categories" (ပထမ page) / "courses" (category တစ်ခုထဲ) / "lessons" (course တစ်ခုထဲ)
+		String viewMode = "categories";
+		request.setAttribute("viewMode", viewMode);
+
 		try {
-			List<Study> courses = model.getCourses(userId);
+			List<Study> allCourses = model.getCourses(userId);
+			List<Category> categories = model.getCategories();
+			categories.sort(Comparator.comparingInt(Category::getCategoryId)); // DB ထဲက အစဉ်အတိုင်း (プログラミング言語 အရင်)
+
 			List<Quiz> availableQuizzes = quizModel.getAvailable(userId);
 			Map<Integer, List<Quiz>> quizzesByCourse = new HashMap<>();
-			for (Study course : courses) quizzesByCourse.put(course.getCourseId(), new ArrayList<>());
+			for (Study course : allCourses) quizzesByCourse.put(course.getCourseId(), new ArrayList<>());
 			for (Quiz quiz : availableQuizzes) {
 				quizzesByCourse.computeIfAbsent(quiz.getCourseId(), key -> new ArrayList<>()).add(quiz);
 			}
-			request.setAttribute("courses", courses);
+
+			Study selectedCourse = null;
+			Category selectedCategory = null;
+
+			// ၁။ courseId ပါရင် အဲဒီ course ကို ရှာမယ် (မြင်ခွင့်ရှိတဲ့ course တွေထဲကပဲ ရှာတာမို့ လုံခြုံတယ်)
+			if (courseId != null) {
+				for (Study c : allCourses) {
+					if (c.getCourseId() == courseId.intValue()) selectedCourse = c;
+				}
+			}
+			if (selectedCourse != null) {
+				viewMode = "lessons";
+				categoryId = selectedCourse.getCategoryId();
+				request.setAttribute("lessons", model.getLessons(selectedCourse.getCourseId()));
+			}
+
+			// ၂။ category ကို ရှာမယ်
+			if (categoryId != null) {
+				for (Category c : categories) {
+					if (c.getCategoryId() == categoryId.intValue()) selectedCategory = c;
+				}
+			}
+
+			// ၃။ category တစ်ခုထဲက course တွေပဲ စစ်ထုတ်မယ်
+			List<Study> shownCourses = allCourses;
+			if (selectedCourse == null && selectedCategory != null) {
+				viewMode = "courses";
+				shownCourses = new ArrayList<>();
+				for (Study c : allCourses) {
+					if (c.getCategoryId() == selectedCategory.getCategoryId()) shownCourses.add(c);
+				}
+				shownCourses.sort(Comparator.comparingInt(Study::getCourseId)); // သင်ယူရမယ့် အစဉ်အတိုင်း
+			}
+
+			// category တစ်ခုချင်းမှာ course ဘယ်နှစ်ခု ရှိလဲ (ပထမ page ရဲ့ ကတ်တွေအတွက်)
+			Map<Integer, Integer> courseCounts = new HashMap<>();
+			for (Study c : allCourses) courseCounts.merge(c.getCategoryId(), 1, Integer::sum);
+
+			request.setAttribute("viewMode", viewMode);
+			request.setAttribute("courses", shownCourses);
 			request.setAttribute("quizzesByCourse", quizzesByCourse);
-			request.setAttribute("categories", model.getCategories());
+			request.setAttribute("categories", categories);
+			request.setAttribute("courseCounts", courseCounts);
+			request.setAttribute("selectedCategory", selectedCategory);
+			request.setAttribute("selectedCourse", selectedCourse);
 			request.setAttribute("currentUserId", userId);
 		} catch (SQLException e) { request.setAttribute("pageError", "Courses could not be loaded. Please try again."); }
 		ControllerSupport.exposeFlash(request);
