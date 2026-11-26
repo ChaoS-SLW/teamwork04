@@ -3,7 +3,7 @@ PRAGMA foreign_keys = ON;
 CREATE TABLE IF NOT EXISTS users (
     user_id INTEGER PRIMARY KEY AUTOINCREMENT,
     username TEXT NOT NULL UNIQUE,
-    email TEXT NOT NULL UNIQUE COLLATE NOCASE,
+    email TEXT UNIQUE COLLATE NOCASE,
     password_hash TEXT NOT NULL,
     created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
     is_active INTEGER NOT NULL DEFAULT 1 CHECK (is_active IN (0, 1))
@@ -118,3 +118,51 @@ CREATE TABLE IF NOT EXISTS study_sessions (
     FOREIGN KEY (course_id) REFERENCES courses(course_id) ON DELETE SET NULL,
     CHECK (ended_at IS NULL OR ended_at > started_at)
 );
+
+CREATE TABLE IF NOT EXISTS study_activity_events (
+    activity_id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id INTEGER NOT NULL,
+    event_type TEXT NOT NULL CHECK (event_type IN ('course_opened', 'quiz_completed', 'task_completed', 'task_saved', 'note_saved')),
+    occurred_at TEXT NOT NULL DEFAULT (datetime('now','localtime')),
+    FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE
+);
+
+CREATE UNIQUE INDEX IF NOT EXISTS idx_one_active_study_session_per_user
+    ON study_sessions(user_id) WHERE ended_at IS NULL;
+
+CREATE INDEX IF NOT EXISTS idx_study_activity_user_date
+    ON study_activity_events(user_id, occurred_at);
+
+CREATE TABLE IF NOT EXISTS calendar_events (
+    event_id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id INTEGER NOT NULL,
+    course_id INTEGER,
+    event_type TEXT NOT NULL CHECK (event_type IN ('study', 'exam')),
+    title TEXT NOT NULL,
+    starts_at TEXT NOT NULL,
+    ends_at TEXT,
+    is_completed INTEGER NOT NULL DEFAULT 0 CHECK (is_completed IN (0, 1)),
+    created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CHECK (ends_at IS NULL OR ends_at > starts_at),
+    CHECK ((event_type = 'study' AND ends_at IS NOT NULL) OR event_type = 'exam'),
+    FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE,
+    FOREIGN KEY (course_id) REFERENCES courses(course_id) ON DELETE SET NULL
+);
+
+CREATE INDEX IF NOT EXISTS idx_calendar_events_user_starts
+    ON calendar_events(user_id, starts_at);
+
+CREATE TABLE IF NOT EXISTS task_notes (
+    note_id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id INTEGER NOT NULL,
+    task_id INTEGER,
+    title TEXT NOT NULL CHECK (length(trim(title)) BETWEEN 1 AND 100),
+    note_text TEXT NOT NULL CHECK (length(trim(note_text)) BETWEEN 1 AND 4000),
+    created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE,
+    FOREIGN KEY (task_id) REFERENCES tasks(task_id) ON DELETE SET NULL
+);
+
+CREATE INDEX IF NOT EXISTS idx_task_notes_user_updated
+    ON task_notes(user_id, updated_at);

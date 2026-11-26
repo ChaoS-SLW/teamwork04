@@ -1,0 +1,30 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title></title>
+<%
+    String activePlanTab = (String) request.getAttribute("activePlanTab");
+    boolean tasksTabActive = "tasks".equals(activePlanTab);
+    boolean plannerTabActive = "planner".equals(activePlanTab);
+%>
+
+</head>
+<body>
+<nav class="d-flex flex-wrap gap-2 mb-4" aria-label="Plan sections">
+  <a
+    class="btn btn-sm rounded-pill <%= tasksTabActive ? "btn-primary" : "btn-outline-primary" %>"
+    href="<%= request.getContextPath() %>/TaskController"
+    <%= tasksTabActive ? "aria-current=\"page\"" : "" %>
+  >Tasks</a>
+  <a
+    class="btn btn-sm rounded-pill <%= plannerTabActive ? "btn-primary" : "btn-outline-primary" %>"
+    href="<%= request.getContextPath() %>/PlannerController"
+    <%= plannerTabActive ? "aria-current=\"page\"" : "" %>
+  >Planner</a>
+</nav>
+
+</body>
+</html>

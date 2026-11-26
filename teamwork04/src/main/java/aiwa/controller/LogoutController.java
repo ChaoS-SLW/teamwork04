@@ -14,9 +14,13 @@ public class LogoutController extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 	@Override
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
-		if (!Html.validCsrfToken(request)) { response.sendRedirect(request.getContextPath() + "/DashboardController"); return; }
+		if (!Html.validCsrfToken(request)) {
+			response.sendRedirect(request.getContextPath() + "/DashboardController");
+			return;
+		}
 		HttpSession session = request.getSession(false);
-		if (session != null) session.invalidate();
+		if (session != null)
+			session.invalidate();
 		response.sendRedirect(request.getContextPath() + "/LoginController?logout=1");
 	}
 }

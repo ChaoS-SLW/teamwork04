@@ -4,42 +4,36 @@
 --%>
 
 <!-- Character Encoding -->
-<meta charset="UTF-8">
+<meta charset="UTF-8" />
 
 <!-- Responsive Viewport -->
-<meta name="viewport"
-      content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
 <!-- Theme Color -->
-<meta name="theme-color" content="#f8f7ff">
-
+<meta name="theme-color" content="#f3f6fa" />
+<link rel="icon" type="image/png" href="<%= request.getContextPath() %>/assets/images/StudyFlowLogo.png" />
 
 <!-- =====================================
      Bootstrap 6 CSS
 ===================================== -->
 <link
-    href="https://cdn.jsdelivr.net/npm/bootstrap@6.0.0-alpha.1/dist/css/bootstrap.min.css"
-    rel="stylesheet"
-    integrity="sha384-B/GM4XqrwHnWXNOWMbloTmrYXZg10cakYGmpfsR/bbzQ6JAJI4ihuyADKLnBgrCe"
-    crossorigin="anonymous"
->
-
+  href="https://cdn.jsdelivr.net/npm/bootstrap@6.0.0-alpha.1/dist/css/bootstrap.min.css"
+  rel="stylesheet"
+  integrity="sha384-B/GM4XqrwHnWXNOWMbloTmrYXZg10cakYGmpfsR/bbzQ6JAJI4ihuyADKLnBgrCe"
+  crossorigin="anonymous"
+/>
 
 <!-- =====================================
      StudyFlow Custom CSS
 ===================================== -->
-<link
-    rel="stylesheet"
-    href="<%= request.getContextPath() %>/assets/css/style.css"
->
-
+<link rel="stylesheet" href="<%= request.getContextPath() %>/assets/css/style.css?v=20261126-quiz-contrast" />
 
 <!-- =====================================
      Bootstrap 6 JavaScript
 ===================================== -->
 <script
-    type="module"
-    src="https://cdn.jsdelivr.net/npm/bootstrap@6.0.0-alpha.1/dist/js/bootstrap.bundle.min.js"
-    integrity="sha384-1a/pXj49ZQ1aHEmrJ+gMw1otqoVsYwlEnlD8mIfY2TV03r20Y0CN7uqx1tQogjPL"
-    crossorigin="anonymous">
-</script>
+  type="module"
+  src="https://cdn.jsdelivr.net/npm/bootstrap@6.0.0-alpha.1/dist/js/bootstrap.bundle.min.js"
+  integrity="sha384-1a/pXj49ZQ1aHEmrJ+gMw1otqoVsYwlEnlD8mIfY2TV03r20Y0CN7uqx1tQogjPL"
+  crossorigin="anonymous"
+></script>
